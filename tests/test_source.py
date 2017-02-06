@@ -9,7 +9,7 @@ import numpy as np
 
 from butterflow.settings import default as settings  # will make temp dirs
 from butterflow import avinfo
-from butterflow.source import OpenCvFrameSource
+from butterflow.core import OpenCvFrameSource
 
 def mk_sample_video(dest, duration, w, h, rate):
     if os.path.exists(dest):
@@ -60,24 +60,24 @@ class OpenCvFrameSourceTestCase(unittest.TestCase):
         self.src_3.close()
 
     def test_seek_to_fr_initial_index_zero(self):
-        self.assertEqual(self.src_3.idx, 0)
+        self.assertEqual(self.src_3.index, 0)
 
     def test_seek_to_fr_inside(self):
         self.src_3.seek_to_fr(1)
-        self.assertEqual(self.src_3.idx, 1)
+        self.assertEqual(self.src_3.index, 1)
 
     def test_seek_to_fr_inside_same_fr_back_to_back(self):
-        self.assertEqual(self.src_3.idx, 0)
+        self.assertEqual(self.src_3.index, 0)
         self.src_3.seek_to_fr(1)
-        self.assertEqual(self.src_3.idx, 1)
+        self.assertEqual(self.src_3.index, 1)
         self.src_3.seek_to_fr(1)
-        self.assertEqual(self.src_3.idx, 1)
+        self.assertEqual(self.src_3.index, 1)
 
     def test_seek_to_fr_at_edges(self):
         self.src_3.seek_to_fr(0)
-        self.assertEqual(self.src_3.idx, 0)
+        self.assertEqual(self.src_3.index, 0)
         self.src_3.seek_to_fr(2)
-        self.assertEqual(self.src_3.idx, 2)
+        self.assertEqual(self.src_3.index, 2)
 
     def test_seek_to_fr_outside_fails(self):
         with self.assertRaises(IndexError):

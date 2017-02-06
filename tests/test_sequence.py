@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from butterflow.sequence import VideoSequence, Subregion
+from butterflow.core import VideoSequence, Subregion
 
 class VideoSequenceTestcase(unittest.TestCase):
     def test_relative_pos(self):

@@ -46,7 +46,7 @@ def mk_sample_video(dest, duration, w, h, rate, sar=None, dar=None):
     if subprocess.call(call) == 1:
         raise RuntimeError
 
-def mux_video_with_files(dest, video, *files):
+def mix_video_with_files(dest, video, *files):
     if os.path.exists(dest):
         return
     call = [
@@ -150,10 +150,10 @@ class AvInfoTestCase(unittest.TestCase):
         self.assertFalse(av['v_stream_exists'])
         self.assertFalse(av['s_stream_exists'])
 
-        muxedfile = os.path.join(settings['tempdir'],
-                                 'test_get_av_info_stream_exists.muxed.mp4')
-        mux_video_with_files(muxedfile, videofile, wavfile)
-        av = avinfo.get_av_info(muxedfile)
+        mixedfile = os.path.join(settings['tempdir'],
+                                 'test_get_av_info_stream_exists.mixed.mp4')
+        mix_video_with_files(mixedfile, videofile, wavfile)
+        av = avinfo.get_av_info(mixedfile)
         self.assertTrue(av['v_stream_exists'])
         self.assertTrue(av['a_stream_exists'])
         self.assertFalse(av['s_stream_exists'])

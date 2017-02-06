@@ -8,7 +8,7 @@ pkg=butterflow-$version
 
 # build_package() {
 #   cd mingw-packages/mingw-w64-$1
-#   MINGW_INSTALLS=mingw64 makepkg-mingw -sLf
+#   MINGW_INSTALLS=mingw64 makepkg-mingw -sf
 #   pacman -U mingw-w64-x86_64-$1-*-any.pkg.tar.xz  # to uninstall: pacman -R mingw-w64-x86_64-<pkg>
 #   cd ../..
 # }

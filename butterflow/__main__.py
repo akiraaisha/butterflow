@@ -4,5 +4,7 @@
 
 if __name__ == '__main__':
     import sys
-    from butterflow.cli import main
-    sys.exit(main())
+    from butterflow.core import CommandLineInterface
+
+    # load the entry point and run it, will return non-zero on failure
+    sys.exit(CommandLineInterface.main())

@@ -2,28 +2,24 @@
 
 import os
 import logging
-import tempfile
 import cv2
-import ocl
-from butterflow.__init__ import __version__
 
 
 default = {
-    'debug_opts':     False,
-    # show first and last n runs, -1 to show all
-    'debug_show_n_runs':            15,
-    'debug_show_progress_period':   0.1,  # show progress every % if snipped
+    'debug_opts':     False,    # display debugging opts?
+    'show_n_runs':            15,   # show first and last n runs, -1 shows all
+    'show_progress_period':   0.1,  # show progress every % if snipped
     # default logging level
     # levels in order of urgency: critical, error, warning, info, debug
-    'loglevel_0':     logging.WARNING,
-    # loglevel will be set to INFO if verbose count is x
+    'loglevel':     logging.WARNING,    # starting loglevel
+    # loglevel will be set to INFO if verbose count is n
     'loglevel_1':     logging.INFO,
     'loglevel_2':     logging.DEBUG,
     'verbose':        False,
     'quiet':          False,
     # quiet loglevel
     'loglevel_quiet': logging.ERROR,
-    # only support ffmpeg for now, can change to avutil if needed
+    # only support ffmpeg for now, but we can change to avutil if needed
     # Documentation: https://ffmpeg.org/ffmpeg.html
     'avutil':         'ffmpeg',
     # avutil and encoder loglevel
@@ -54,7 +50,7 @@ default = {
     # CV_INTER_CUBIC looks best but is slower, CV_INTER_LINEAR is faster but
     # still looks okay
     'scaler_dn':      cv2.cv.CV_INTER_CUBIC,
-    # muxing opts
+    # mixing opts
     'v_container':    'mp4',
     # See: https://trac.ffmpeg.org/wiki/Encode/HighQualityAudio
     'a_container':    'm4a',   # will keep some useful metadata
@@ -65,16 +61,6 @@ default = {
     'qa':             4,       # quality scale of audio from 0.1 to 10
     # location of files and directories
     'out_path':       os.path.join(os.getcwd(), 'out.mp4'),
-    # since value of tempfile.tempdir is None python will search std list of
-    # dirs and will select the first one that the user can create a file in
-    # See: https://docs.python.org/2/library/tempfile.html#tempfile.tempdir
-    #
-    # butterflow will write renders to a temp file in tempdir and will move it
-    # to it's destination path when completed using shutil.move(). if the dest
-    # is on the current filesystem then os.rename() is used, otherwise the file
-    # is copied with shutil.copy2 then removed
-    'tempdir':        os.path.join(tempfile.gettempdir(),
-                                   'butterflow-{}'.format(__version__)),
     # farneback optical flow options
     'pyr_scale':      0.5,
     'levels':         3,
@@ -86,57 +72,57 @@ default = {
     'fast_pyr':       False,
     'flow_filter':    'box',
     # -1 is max threads and it's the opencv default
-    'ocv_threads':    -1,    # 0 will disable threading optimizations
+    'ocv_threads':    -1,   # 0 will disable threading optimizations
     # milliseconds to display image in preview window
-    'imshow_ms':      1,
-    # debug text settings
-    'text_type':      'light',      # other options: `dark`, `stroke`
-    'light_color':    cv2.cv.RGB(255, 255, 255),
-    'dark_color':     cv2.cv.RGB(0, 0, 0),
-    # h_fits and v_fits is the minimium size in which the unscaled
-    # CV_FONT_HERSHEY_PLAIN font text fits in the rendered video. The font is
-    # scaled up and down based on this reference point
-    'font_face':      cv2.cv.CV_FONT_HERSHEY_PLAIN,
-    'font_type':      cv2.cv.CV_AA,
-    'txt_max_scale':  1.0,
-    'txt_thick':      1,
-    'txt_stroke_thick':  2,
-    'txt_w_fits':     768,
-    'txt_h_fits':     216,
-    'txt_t_pad':      30,
-    'txt_l_pad':      20,
-    'txt_r_pad':      20,
-    'txt_ln_b_pad':   10,    # spacing between lines
-    'txt_min_scale':  0.55,  # don't draw if the font is scaled below this
-    'txt_placeh':     '?',   # placeholder if value in fmt text is None
-    # progress bar settings
-    'bar_w_fits':     420,
-    'bar_h_fits':     142,
-    'bar_t_pad':      0.7,   # relative padding from the top
-    'bar_s_pad':      0.12,  # relative padding on each side
-    'bar_ln_thick':   3,     # pixels of lines that make outer rectangle
-    'bar_stroke_thick':  1,  # size of the stroke in pixels
-    'bar_ln_type':    cv2.cv.CV_FILLED,  # -1, a filled line
-    'bar_in_pad':     3,     # padding from the inner bar
-    'bar_thick':      15,    # thickness of the inner bar
-    'bar_color':      cv2.cv.RGB(255, 255, 255),
-    'bar_stroke_color':  cv2.cv.RGB(192, 192, 192),
-    # frame marker settings
-    'mrk_w_fits':     572,
-    'mrk_h_fits':     142,
-    'mrk_d_pad':      20,
-    'mrk_r_pad':      20,
-    'mrk_out_thick':  -1,    # -1, a filled circle
-    'mrk_out_radius': 6,
-    'mrk_in_thick':   -1,
-    'mrk_in_radius':  4,
-    'mrk_ln_type':    cv2.cv.CV_AA,
-    'mrk_out_color':  cv2.cv.RGB(255, 255, 255),
-    'mrk_color':      cv2.cv.RGB(255, 255, 255),
-    'mrk_fill_color': cv2.cv.RGB(255, 0, 0)
+    'imshow_ms':      1,    # 0 will display until key is pressed
 }
 
-default['clbdir'] = os.path.join(default['tempdir'], 'clb')  # ocl cache files
+# drawables settings
+
+debugtext = {
+    'text_type':     'light',      # other options: `dark`, `stroke`
+    'light_color':   cv2.cv.RGB(255, 255, 255),
+    'dark_color':    cv2.cv.RGB(0, 0, 0),
+    # w_fit and h_fit is the minimium size in which the unscaled
+    # CV_FONT_HERSHEY_PLAIN font text fits in the rendered video. The font is
+    # scaled up and down based on these reference values
+    'w_fit':         768,
+    'h_fit':         216,
+    'font_face':     cv2.cv.CV_FONT_HERSHEY_PLAIN,
+    'font_type':     cv2.cv.CV_AA,
+    'max_scale':     1.0,
+    'thick':         1,
+    'stroke_thick':  2,
+    't_pad':         30,
+    'l_pad':         20,
+    'r_pad':         20,
+    'ln_b_pad':      10,    # spacing between lines
+    'min_scale':     0.55,  # don't draw if the font is scaled below this
+    'placeh':     '?',      # placeholder if value in fmt text is None
+}
+
+progbar = {
+    'w_fit':        420,
+    'h_fit':        142,
+    't_pad':        0.7,    # relative padding from the top of the fr
+    'side_pad':     0.12,   # padding on each side
+    'out_thick':    3,      # px of lines that make up the outer rectangle
+    'stroke_thick': 1,      # size of the stroke in px
+    'ln_type':      -1,     # -1=a filled line
+    'in_pad':       3,      # pad from the inner bar
+    'in_thick':     15,     # thickness of the inner bar
+    'color':        cv2.cv.RGB(255,255,255),
+    'stroke_color': cv2.cv.RGB(192,192,192),
+}
+
+frmarker = {
+    'w_fit':        572,
+    'h_fit':        142,
+    'outer_radius': 4,
+    'r_pad':        20,     # padding from bot-right-right corner of fr
+    'd_pad':        20,     # padding from bot-right-down
+    'inner_radius': 3,
+}
 
 # override default settings with development settings
 # ignore errors when dev_settings.py does not exist
@@ -149,11 +135,3 @@ except ImportError:
     pass
 except AttributeError:
     pass
-
-# make temporary directories
-for x in [default['clbdir'], default['tempdir']]:
-    if not os.path.exists(x):
-        os.makedirs(x)
-
-# set the location of the clb cache
-ocl.set_cache_path(default['clbdir'] + os.sep)

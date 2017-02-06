@@ -55,9 +55,6 @@ print_ocl_devices(PyObject *self, PyObject *noargs) {
     size_t d_max_work_item_sizes[3];
     int d_num = 0;
 
-    const DeviceInfo& currentDevice = Context::getContext()->getDeviceInfo();
-    cl_uint currentVendorId = (cl_uint)currentDevice.deviceVendorId;
-
     cl_safe(clGetPlatformIDs(32, platforms, &n_platforms));
 
     if (n_platforms <= 0) {
@@ -65,6 +62,11 @@ print_ocl_devices(PyObject *self, PyObject *noargs) {
                "installation.\n");
         Py_RETURN_NONE;
     }
+
+    std::cerr.setstate(std::ios_base::failbit);
+    const DeviceInfo& currentDevice = Context::getContext()->getDeviceInfo();
+    cl_uint currentVendorId = (cl_uint)currentDevice.deviceVendorId;
+    std::cerr.clear();
 
     printf("OpenCL devices:");
 
@@ -90,7 +92,8 @@ print_ocl_devices(PyObject *self, PyObject *noargs) {
             cl_device_id d = devices[j];
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_PROFILE, 1024, d_prof, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_NAME, 1024, d_name, NULL));
-            cl_safe(clGetDeviceInfo(d, CL_DEVICE_VENDOR_ID, sizeof(d_vendor_id), &d_vendor_id, NULL));
+            cl_safe(clGetDeviceInfo(d, CL_DEVICE_VENDOR_ID, sizeof(d_vendor_id),
+                                    &d_vendor_id, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_VERSION, 1024, d_vers, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DRIVER_VERSION, 1024, d_dver, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_MAX_WORK_GROUP_SIZE,
@@ -107,7 +110,8 @@ print_ocl_devices(PyObject *self, PyObject *noargs) {
             if (!compatible) {
                 compatible_string = "No";
             }
-            bool isCurrentDevice = (currentVendorId == d_vendor_id);
+            bool isCurrentDevice = (currentVendorId == d_vendor_id &&
+                                    currentDevice.deviceName == d_name);
             char const *selected_string = " ";
             if (isCurrentDevice) {
                 selected_string = "*";
@@ -229,7 +233,8 @@ select_ocl_device(PyObject *self, PyObject *arg) {
 
         for (int j = 0; j < n_devices; j++) {
             cl_device_id d = devices[j];
-            cl_safe(clGetDeviceInfo(d, CL_DEVICE_VENDOR_ID, sizeof(d_vendor_id), &d_vendor_id, NULL));
+            cl_safe(clGetDeviceInfo(d, CL_DEVICE_VENDOR_ID, sizeof(d_vendor_id),
+                                    &d_vendor_id, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_VERSION, 1024, d_vers, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_PROFILE, 1024, d_prof, NULL));
             cl_safe(clGetDeviceInfo(d, CL_DEVICE_MAX_WORK_GROUP_SIZE,
@@ -243,10 +248,11 @@ select_ocl_device(PyObject *self, PyObject *arg) {
                 bool found_device = false;
                 DevicesInfo devicesInfo;
                 getOpenCLDevices(devicesInfo, CVCL_DEVICE_TYPE_ALL, NULL);
-                for(vector<const DeviceInfo*>::iterator it = devicesInfo.begin(); it != devicesInfo.end(); ++it) {
-                    const DeviceInfo *deviceInfo = *it;
+                const DeviceInfo *deviceInfo = NULL;
+                for(vector<const DeviceInfo*>::iterator it = devicesInfo.begin();
+                    it != devicesInfo.end(); ++it) {
+                    deviceInfo = *it;
                     if (deviceInfo->deviceVendorId == d_vendor_id) {
-                        setDevice(deviceInfo);
                         found_device = true;
                         break;
                     }
@@ -259,9 +265,11 @@ select_ocl_device(PyObject *self, PyObject *arg) {
                 if (ocl_device_is_compatible(d_vers, d_prof, p_prof,
                                              d_max_work_group_size,
                                              d_max_work_item_sizes)) {
+                    setDevice(deviceInfo);
                     Py_RETURN_TRUE;
                 } else {
-                    PyErr_SetString(PyExc_ValueError, "Selected an incompatible device");
+                    PyErr_SetString(PyExc_ValueError,
+                                    "Selected an incompatible device");
                     return (PyObject*)NULL;
                 }
             }

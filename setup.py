@@ -198,18 +198,19 @@ setup_kwargs = {
     'description':  'Makes motion interpolated and fluid slow motion videos',
     'keywords':     ['motion interpolation', 'slow motion', 'slowmo',
                      'smooth motion'],
-    'entry_points': {'console_scripts': ['butterflow = butterflow.cli:main']},
+    'entry_points': {'console_scripts':
+                    ['butterflow = butterflow.core:CommandLineInterface.main']},
     'test_suite':   'tests'
 }
 
 import functools
 setup = functools.partial(setup, **setup_kwargs)
 
+# get files not picked up by cxfreeze
 if use_cx_freeze:
-    # get files not picked up by cxfreeze
     import fnmatch
     include_files = []
-    with open('win10-cxfreeze_include_files', 'r') as f:
+    with open('packaging/cxfreeze_include_files', 'r') as f:
         for line in f:
             line = line.rstrip()
             if line.startswith('prefix'):

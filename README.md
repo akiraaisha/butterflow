@@ -33,7 +33,7 @@ Here's another example of the same concept. Frame-stepping through the BF'd file
 ## Setup (for Linux users):
 **Note:** No setup is necessary on OS X or Windows. Read [this](https://github.com/dthpham/butterflow/blob/master/docs/Setting-Up-OpenCL.md#os-x-mavericks-and-newer) if you run into a problem with OpenCL on OS X.
 
-BF requires no additional setup to use, however it's too slow out of the box to do any serious work. It's recommended that you set up a functional OpenCL environment on your machine so you can take advantage of hardware accelerated methods that will make rendering significantly faster.
+BF requires no additional setup to use, however it's too slow out of the box to do any serious work. You must set up a functional OpenCL environment on your machine to take advantage of hardware accelerated methods that will make rendering significantly faster.
 
 See: [Setting up OpenCL](https://github.com/dthpham/butterflow/blob/master/docs/Setting-Up-OpenCL.md) for details on how to do this.
 

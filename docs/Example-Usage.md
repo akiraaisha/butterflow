@@ -21,6 +21,7 @@
  * `end` is a special keyword that signifies "to the end of the video".
  * `spd` is what we're targeting in the region.
  * Since the playback rate is unchanged (`-r` is not set) this would produce a video with 4x more frames, all interpolated.
+ * This command is the same as `butterflow -s full,spd=0.25`.
 2. Set a video's duration to be 8s long with `butterflow -s a=0,b=end,dur=8 <video>`.
 3. Create 200 frames for every 1s of video with `butterflow -s a=0,b=end,fps=200 <video>`.
  * `fps` is different from `-r`, which sets the global playback rate.
@@ -34,8 +35,6 @@
 2. Slowmo a 1s region to 0.5x speed with `butterflow -s a=5,b=6,spd=0.5 <video>`.
 3. Double the frame rate on a 1s region *and* slow it down: `butterflow -r 2x -s a=0,b=1,spd=0.5x <video>`.
  * Assume the video's original frame rate was 24fps. This command would create an output video with 24\*2\*2 frames because `-r` and `spd=<lower>` is being used in conjunction.
-4. Work on the whole video (the entire region) with `butterflow -s a=0,b=end,spd=0.9`.
- * This command is the same as `butterflow -s full,spd=0.9`.
 
 **Tip:** The `-k` option will render regions that are not explicitly specified into the output video at 1x speed (the playback rate still applies across these regions).
 
@@ -53,9 +52,13 @@ BF uses the Farneback algorithm to compute dense optical flows for frame interpo
 
 **Tip:** BF's slow motion feature works best on input videos with an inherent "fluidity" to them, videos where moving elements in a scene have a steady and traceable trail of motion.
 
-**Tip:** The presence of artifacts depends on many factors, which includes  the frame rate of the source video, its dimensions, original image quality, and the type of motion present. Pixel artifacts will be more prevalent when the motion between source frames is atypical or fall on extremes (e.g., during scene changes, when people or objects pop in and out or cover large distances in a short period of time).
+**Tip:** The presence of artifacts depends on many factors, which includes the frame rate of the source video, its dimensions, image quality, and the type of motion present. Pixel artifacts will be more prevalent when the motion between source frames is atypical or fall on extremes (e.g., during scene changes, or when people or objects pop in and out or cover large distances in a short period of time).
 
-You can minimize the negative effects of large motion by rendering more frames, typically done with `-r <higher>`, `fps=<higher>` or `spd=<very low>`, or a combination thereof. Lower resolution videos are good at obfuscating artifacts and they tend to be less prone to producing them. So if the output image is artifact heavy, try scaling the video down with `-vs <lower>`. You can skip over scene changes with the `-s` option.
+In general, you can minimize the negative effects of large motion by rendering more frames, typically done with `-r <higher>`, `fps=<higher>` or `spd=<very low>`, or a combination thereof. Typically, rendering more frames will increase the duration of the video. You can counteract this by first rendering a video with lots of interpolated frames in one command, and then speeding that video back up to a desired speed in another.
+
+Lower resolution videos are good at obfuscating artifacts and they tend to be less prone to producing them. If the output image is artifact heavy, try scaling the video down with `-vs <lower>`.
+
+You can skip over scene changes with the `-s` option.
 
 **Tip:** Use the `-sm` flag if having artifact-less frames is a priority. This will tune settings to emphasize blending frames over the default behavior of warping pixels.
 
